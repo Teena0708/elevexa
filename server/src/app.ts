@@ -1,5 +1,6 @@
 import express from "express";
 import authRoutes from "./features/auth/auth.routes";
+import aiRoutes from "./features/ai/ai.routes";
 //import resumeRoutes from "./features/resume/resume.routes";
 
 const app = express();
@@ -14,6 +15,7 @@ app.get("/", (req, res) => {
 
 // Routes
 app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/ai", aiRoutes);
 //app.use("/api/v1/resume", resumeRoutes);
 
 export default app;
