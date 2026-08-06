@@ -1,15 +1,14 @@
+// Interview routes placeholder
 import { Router } from "express";
-import { uploadResume } from "./resume.controller";
 import authMiddleware from "../../middleware/auth.middleware";
-import upload from "../../middleware/upload.middleware";
+import { generateInterview } from "./interview.controller";
 
 const router = Router();
 
 router.post(
-  "/upload",
+  "/generate",
   authMiddleware,
-  upload.single("resume"),
-  uploadResume
+  generateInterview
 );
 
 export default router;

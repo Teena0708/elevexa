@@ -1,8 +1,8 @@
 import { Response } from "express";
 import { AuthRequest } from "../../shared/types/auth.types";
-import { uploadResume } from "./resume.service";
+import { uploadResumeService } from "./resume.service";
 
-export const upload = async (
+export const uploadResume = async (
   req: AuthRequest,
   res: Response
 ) => {
@@ -10,23 +10,35 @@ export const upload = async (
     if (!req.file) {
       return res.status(400).json({
         success: false,
-        message: "No file uploaded",
+        message: "Please upload a PDF resume.",
       });
     }
 
-    const result = await uploadResume(
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    const resume = await uploadResumeService(
       req.file,
-      req.user!.userId
+      req.user.userId
     );
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
-      data: result,
+      message: "Resume uploaded successfully.",
+      data: {
+        id: resume._id,
+        resumeUrl: resume.resumeUrl,
+        analysis: resume.analysis,
+      },
     });
-  } catch (error) {
-    res.status(500).json({
+  } catch (error: any) {
+    return res.status(500).json({
       success: false,
-      message: "Upload Failed",
+      message: error.message,
     });
   }
 };

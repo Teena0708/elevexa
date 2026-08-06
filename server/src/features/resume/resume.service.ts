@@ -1,30 +1,43 @@
-import Resume from "./resume.model";
+import pdf from "pdf-parse";
 import cloudinary from "../../config/cloudinary";
-import streamifier from "streamifier";
+import { analyzeResume } from "../ai/ai.service";
+import Resume from "./resume.model";
 
-export const uploadResume = async (
+export const uploadResumeService = async (
   file: Express.Multer.File,
   userId: string
 ) => {
-  return new Promise((resolve, reject) => {
+  // Extract text from uploaded PDF
+  const pdfData = await pdf(file.buffer);
+  const extractedText = pdfData.text;
+
+  // Upload PDF to Cloudinary
+  const uploadResult: any = await new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       {
         resource_type: "raw",
         folder: "elevexa/resumes",
       },
-      async (error, result) => {
+      (error, result) => {
         if (error) return reject(error);
-
-        const resume = await Resume.create({
-          user: userId,
-          resumeUrl: result?.secure_url,
-          publicId: result?.public_id,
-        });
-
-        resolve(resume);
+        resolve(result);
       }
     );
 
-    streamifier.createReadStream(file.buffer).pipe(stream);
+    stream.end(file.buffer);
   });
+
+  // Analyze resume using AI
+  const analysis = await analyzeResume(extractedText);
+
+  // Save in MongoDB
+  const resume = await Resume.create({
+    user: userId,
+    resumeUrl: uploadResult.secure_url,
+    publicId: uploadResult.public_id,
+    extractedText,
+    analysis,
+  });
+
+  return resume;
 };

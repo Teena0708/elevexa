@@ -1,29 +1,20 @@
 import multer from "multer";
-import path from "path";
-import fs from "fs-extra";
 
-const uploadDir = path.join(process.cwd(), "uploads");
+const storage = multer.memoryStorage();
 
-fs.ensureDirSync(uploadDir);
+const fileFilter: multer.Options["fileFilter"] = (req, file, cb) => {
+  if (file.mimetype !== "application/pdf") {
+    return cb(new Error("Only PDF files are allowed."));
+  }
 
-const storage = multer.diskStorage({
-  destination: (_, __, cb) => {
-    cb(null, uploadDir);
-  },
-
-  filename: (_, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`);
-  },
-});
+  cb(null, true);
+};
 
 const upload = multer({
   storage,
-  fileFilter: (_, file, cb) => {
-    if (file.mimetype === "application/pdf") {
-      cb(null, true);
-    } else {
-      cb(new Error("Only PDF files are allowed"));
-    }
+  fileFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5 MB
   },
 });
 
