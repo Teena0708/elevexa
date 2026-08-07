@@ -106,75 +106,117 @@ export const evaluateAnswerService = async (
 
   // ================= LAST QUESTION =================
 
-  if (session.currentQuestion === session.answers.length) {
-    session.status = "COMPLETED";
+  // ================= LAST QUESTION =================
 
-    const total = session.answers.reduce(
-      (sum, item) => sum + item.score,
-      0
-    );
+const interviewCompleted =
+  session.currentQuestion === session.answers.length;
 
-    session.overallScore = Math.round(
-      total / session.answers.length
-    );
+if (interviewCompleted) {
+  session.status = "COMPLETED";
 
-    // Generate Final Report
+  const total = session.answers.reduce(
+    (sum, item) => sum + item.score,
+    0
+  );
 
-    const reportCompletion =
-      await groq.chat.completions.create({
-        model: "llama-3.3-70b-versatile",
-        messages: [
-          {
-            role: "user",
-            content: finalInterviewReportPrompt(
-              session.answers.map((a) => a.question),
-              session.answers.map((a) => a.answer)
-            ),
-          },
-        ],
-        temperature: 0.4,
-      });
+  session.overallScore = Math.round(
+    total / session.answers.length
+  );
 
-    const reportText =
-      reportCompletion.choices[0]?.message?.content ?? "";
+  // Generate Final Report
 
-    try {
-      session.report = JSON.parse(reportText);
-    } catch {
-      session.report = {
-        strengths: [],
-        weaknesses: [],
-        recommendations: [],
-      };
-    }
-  }
+  const reportCompletion =
+    await groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages: [
+        {
+          role: "user",
+          content: finalInterviewReportPrompt(
+            session.answers.map((a) => a.question),
+            session.answers.map((a) => a.answer)
+          ),
+        },
+      ],
+      temperature: 0.4,
+    });
 
-  await session.save();
+  const reportText =
+    reportCompletion.choices[0]?.message?.content ?? "";
 
-  return {
-    score: parsedEvaluation.score,
-    feedback: parsedEvaluation.feedback,
+  console.log("========== FINAL REPORT ==========");
+  console.log(reportText);
+  console.log("==================================");
 
-    completed: session.status === "COMPLETED",
+ const cleanedReport = reportText
+  .replace(/```json\s*/gi, "")
+  .replace(/```/g, "")
+  .trim();
 
-    overallScore:
-      session.status === "COMPLETED"
-        ? session.overallScore
-        : null,
+try {
+  let parsedReport: any;
 
-    report:
-      session.status === "COMPLETED"
-        ? session.report
-        : null,
+try {
+  parsedReport = JSON.parse(cleanedReport);
 
-    nextQuestion:
-      session.status === "IN_PROGRESS"
-        ? {
-            questionNumber: session.currentQuestion + 1,
-            totalQuestions: session.answers.length,
-            question:
-              session.answers[session.currentQuestion].question,
-          }
-        : null,
+  console.log("Parsed Report:");
+  console.dir(parsedReport, { depth: null });
+
+  session.report = {
+    strengths: parsedReport.strengths ?? [],
+    weaknesses: parsedReport.weaknesses ?? [],
+    recommendations: parsedReport.recommendations ?? [],
   };
+
+  console.log("Saved Report:");
+  console.dir(session.report, { depth: null });
+
+} catch (err) {
+  console.error(err);
+}
+
+  session.report = {
+    strengths: parsedReport.strengths || [],
+    weaknesses: parsedReport.weaknesses || [],
+    recommendations: parsedReport.recommendations || [],
+  };
+
+  console.log("Saved Report:", session.report);
+
+} catch (error) {
+  console.error("Report Parsing Error:", error);
+  console.error("Raw Report:", reportText);
+
+  session.report = {
+    strengths: [],
+    weaknesses: [],
+    recommendations: [],
+  };
+}
+}
+
+await session.save();
+
+return {
+  score: parsedEvaluation.score,
+  feedback: parsedEvaluation.feedback,
+
+  completed: interviewCompleted,
+
+  overallScore: interviewCompleted
+    ? session.overallScore
+    : null,
+
+  report: interviewCompleted
+    ? session.report
+    : null,
+
+  nextQuestion: !interviewCompleted
+    ? {
+        questionNumber: session.currentQuestion + 1,
+        totalQuestions: session.answers.length,
+        question:
+          session.answers[session.currentQuestion].question,
+      }
+    : null,
 };
+}
