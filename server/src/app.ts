@@ -4,7 +4,7 @@ import aiRoutes from "./features/ai/ai.routes";
 import resumeRoutes from "./features/resume/resume.routes";
 import interviewRoutes from "./features/interview/interview.routes";
 import mockInterviewRoutes from "./features/mockInterview/mockInterview.routes";
-
+import dashboardRoutes from "./features/dashboard/dashboard.routes";
 
 const app = express();
 
@@ -19,5 +19,6 @@ app.use("/api/v1/ai", aiRoutes);
 app.use("/api/v1/resume", resumeRoutes);
 app.use("/api/v1/interview", interviewRoutes);
 app.use("/api/v1/mock", mockInterviewRoutes);
+app.use("/api/v1/dashboard", dashboardRoutes);
 
 export default app;
