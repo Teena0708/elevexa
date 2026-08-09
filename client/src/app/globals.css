@@ -1,26 +1,188 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-ev-bg: var(--ev-bg);
+  --color-ev-bg-elevated: var(--ev-bg-elevated);
+  --color-ev-surface: var(--ev-surface);
+  --color-ev-surface-hover: var(--ev-surface-hover);
+  --color-ev-border: var(--ev-border);
+  --color-ev-border-strong: var(--ev-border-strong);
+  --color-ev-text: var(--ev-text-primary);
+  --color-ev-text-secondary: var(--ev-text-secondary);
+  --color-ev-text-tertiary: var(--ev-text-tertiary);
+  --color-ev-indigo: var(--ev-indigo);
+  --color-ev-violet: var(--ev-violet);
+  --color-ev-emerald: var(--ev-emerald);
+  --color-ev-amber: var(--ev-amber);
+  --color-ev-red: var(--ev-red);
+  --radius-ev: var(--ev-radius-md);
+  --shadow-ev-card: var(--ev-shadow-card);
+  --shadow-ev-elevated: var(--ev-shadow-elevated);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ============================================================
+   ELEVEXA — Design Tokens
+   A near-black analytical surface with indigo/violet signal
+   colors. Numbers (scores) render in a mono face throughout —
+   the product's one consistent visual "tell": this is a
+   measurement instrument, not a form.
+   ============================================================ */
+
+:root {
+  /* Surfaces */
+  --ev-bg: #08090d;
+  --ev-bg-elevated: #0d0f15;
+  --ev-surface: #12141b;
+  --ev-surface-hover: #161923;
+  --ev-border: #1e212b;
+  --ev-border-strong: #2a2e3a;
+
+  /* Text */
+  --ev-text-primary: #f3f4f6;
+  --ev-text-secondary: #9aa1b1;
+  --ev-text-tertiary: #656b7a;
+
+  /* Signal */
+  --ev-indigo: #6366f1;
+  --ev-indigo-soft: #6366f11a;
+  --ev-violet: #8b5cf6;
+  --ev-violet-soft: #8b5cf61a;
+  --ev-emerald: #10b981;
+  --ev-emerald-soft: #10b9811a;
+  --ev-amber: #f59e0b;
+  --ev-amber-soft: #f59e0b1a;
+  --ev-red: #ef4444;
+  --ev-red-soft: #ef44441a;
+
+  --ev-radius-sm: 8px;
+  --ev-radius-md: 12px;
+  --ev-radius-lg: 16px;
+
+  --ev-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -12px rgba(0, 0, 0, 0.5);
+  --ev-shadow-elevated: 0 4px 12px rgba(0, 0, 0, 0.5), 0 16px 40px -16px rgba(99, 102, 241, 0.15);
+}
+
+* {
+  border-color: var(--ev-border);
+}
+
+html,
+body {
+  background: var(--ev-bg);
+  color: var(--ev-text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-data {
+  font-family: var(--font-geist-mono, ui-monospace, "SF Mono", Menlo, monospace);
+  font-feature-settings: "tnum" 1, "zero" 1;
+  letter-spacing: -0.01em;
+}
+
+/* Ambient background: soft indigo/violet glow + faint grid, both very low opacity */
+.ev-shell-bg {
+  position: relative;
+  isolation: isolate;
+}
+
+.ev-shell-bg::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background-image:
+    radial-gradient(600px circle at 15% 0%, rgba(99, 102, 241, 0.10), transparent 60%),
+    radial-gradient(500px circle at 85% 20%, rgba(139, 92, 246, 0.08), transparent 60%);
+  pointer-events: none;
+}
+
+.ev-shell-bg::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 100%);
+  pointer-events: none;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--ev-border-strong);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #383d4c;
+}
+
+/* Motion */
+@keyframes ev-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.ev-animate-in {
+  animation: ev-fade-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes ev-pulse-glow {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.ev-pulse-dot {
+  animation: ev-pulse-glow 2.4s ease-in-out infinite;
+}
+
+@keyframes ev-draw-line {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Focus visibility */
+:focus-visible {
+  outline: 2px solid var(--ev-indigo);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
 }
