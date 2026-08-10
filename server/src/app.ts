@@ -5,9 +5,15 @@ import resumeRoutes from "./features/resume/resume.routes";
 import interviewRoutes from "./features/interview/interview.routes";
 import mockInterviewRoutes from "./features/mockInterview/mockInterview.routes";
 import dashboardRoutes from "./features/dashboard/dashboard.routes";
-
+import cors from "cors";
 const app = express();
 
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 app.get("/", (req, res) => {

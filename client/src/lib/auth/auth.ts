@@ -6,7 +6,7 @@ export function saveAuth(token: string, user: unknown) {
   localStorage.setItem(USER_KEY, JSON.stringify(user));
 }
 
-export function getToken() {
+export function getToken(): string | null {
   if (typeof window === "undefined") {
     return null;
   }
