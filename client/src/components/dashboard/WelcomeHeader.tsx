@@ -1,4 +1,5 @@
 import { Sparkles, FileSearch } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 function getGreeting(hour: number) {
   if (hour < 12) return "Good morning";
@@ -7,6 +8,7 @@ function getGreeting(hour: number) {
 }
 
 export function WelcomeHeader({ firstName }: { firstName: string }) {
+  const router = useRouter();
   const greeting = getGreeting(new Date().getHours());
 
   return (
@@ -24,20 +26,22 @@ export function WelcomeHeader({ firstName }: { firstName: string }) {
       </div>
 
       <div className="flex shrink-0 gap-2.5">
-        <button
-          type="button"
-          className="inline-flex items-center gap-2 rounded-lg border border-ev-border bg-ev-surface px-4 py-2.5 text-sm font-medium text-ev-text transition-colors hover:bg-ev-surface-hover"
-        >
-          <FileSearch className="h-4 w-4" strokeWidth={1.75} />
-          Analyze Resume
-        </button>
-        <button
-          type="button"
-          className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-b from-ev-indigo to-[#4f52e0] px-4 py-2.5 text-sm font-medium text-white shadow-[0_1px_0_rgba(255,255,255,0.15)_inset,0_4px_16px_-4px_rgba(99,102,241,0.5)] transition-transform hover:-translate-y-px active:translate-y-0"
-        >
-          <Sparkles className="h-4 w-4" strokeWidth={1.75} />
-          Start Mock Interview
-        </button>
+<button
+  type="button"
+  onClick={() => router.push("/resume")}
+  className="inline-flex items-center gap-2 rounded-lg border border-ev-border bg-ev-surface px-4 py-2.5 text-sm font-medium text-ev-text transition-colors hover:bg-ev-surface-hover"
+>
+  <FileSearch className="h-4 w-4" strokeWidth={1.75} />
+  Analyze Resume
+</button>
+    <button
+  type="button"
+  onClick={() => router.push("/mock-interview")}
+  className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-b from-ev-indigo to-[#4f52e0] px-4 py-2.5 text-sm font-medium text-white shadow-[0_1px_0_rgba(255,255,255,0.15)_inset,0_4px_16px_-4px_rgba(99,102,241,0.5)] transition-transform hover:-translate-y-px active:translate-y-0"
+>
+  <Sparkles className="h-4 w-4" strokeWidth={1.75} />
+  Start Mock Interview
+</button>
       </div>
     </div>
   );
