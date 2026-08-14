@@ -220,3 +220,20 @@ return {
     : null,
 };
 }
+
+
+
+
+// ================= MOCK INTERVIEW HISTORY =================
+
+export const getMockInterviewHistoryService = async (
+  userId: string
+) => {
+  const history = await MockInterview.find({
+    user: userId,
+  })
+    .populate("interview", "role difficulty")
+    .sort({ createdAt: -1 });
+
+  return history;
+};

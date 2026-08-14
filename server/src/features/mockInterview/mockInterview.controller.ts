@@ -3,6 +3,7 @@ import { AuthRequest } from "../../shared/types/auth.types";
 import {
   startMockInterviewService,
   evaluateAnswerService,
+  getMockInterviewHistoryService,
 } from "./mockInterview.service";
 
 // ================= START MOCK INTERVIEW =================
@@ -78,6 +79,36 @@ export const evaluateAnswer = async (
       success: true,
       message: "Answer evaluated successfully.",
       data: result,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// ================= MOCK INTERVIEW HISTORY =================
+
+export const getMockInterviewHistory = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    const history = await getMockInterviewHistoryService(
+      req.user.userId
+    );
+
+    return res.status(200).json({
+      success: true,
+      data: history,
     });
   } catch (error: any) {
     return res.status(500).json({
